@@ -6,5 +6,9 @@ function showFloor(floor) {
     floor4: "Floor 4: Gaming Zone, Washroom, Exit"
   };
 
-  document.getElementById("mapDisplay").innerHTML = maps[floor];
+  const mapDisplay = document.getElementById("mapDisplay");
+  mapDisplay.classList.remove("slide"); // reset animation
+  void mapDisplay.offsetWidth; // restart animation trick
+  mapDisplay.innerHTML = maps[floor];
+  mapDisplay.classList.add("slide"); // trigger animation
 }
