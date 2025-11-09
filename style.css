@@ -1,3 +1,52 @@
-body { text-align: center; font-family: Arial; padding: 20px; }
-.floors button { padding: 10px 20px; margin: 10px; cursor: pointer; }
-.map { margin-top: 30px; font-size: 20px; }
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  background: linear-gradient(135deg, #cce4ff, #e8f1ff);
+  min-height: 100vh;
+  margin: 0;
+  padding: 30px;
+}
+
+h1 {
+  color: #004b8f;
+  font-size: 32px;
+  margin-bottom: 25px;
+}
+
+.floors button {
+  background: #0074d9;
+  border: none;
+  padding: 12px 25px;
+  margin: 10px;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: 0.3s;
+}
+
+.floors button:hover {
+  background: #005fb6;
+  transform: scale(1.05);
+}
+
+.map {
+  margin-top: 40px;
+  font-size: 22px;
+  color: #004b8f;
+  padding: 20px;
+  width: 80%;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Slide Animation */
+.slide {
+  animation: slideIn 0.5s ease forwards;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(60px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
