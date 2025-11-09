@@ -1,22 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>In-Store Navigation</title>
-  <link rel="stylesheet" href="style.css">
+<title>In-Store Navigation System</title>
+<style>
+body { font-family: Arial; padding: 20px; }
+#map { width: 100%; max-width: 500px; border: 2px solid black; margin-top: 20px; }
+</style>
 </head>
 <body>
 
-<h1>Store Navigation System</h1>
+<h1>Store Navigation System 🏬</h1>
 
-<div class="floors">
-  <button onclick="showFloor('floor1')">Floor 1</button>
-  <button onclick="showFloor('floor2')">Floor 2</button>
-  <button onclick="showFloor('floor3')">Floor 3</button>
-  <button onclick="showFloor('floor4')">Floor 4</button>
-</div>
+<input type="text" id="search" placeholder="Search item..." onkeyup="searchItem()">
 
-<div id="mapDisplay" class="map">Select a floor to view its layout.</div>
+<button onclick="sortItems('asc')">Sort Price ↑</button>
+<button onclick="sortItems('desc')">Sort Price ↓</button>
 
-<script src="script.js"></script>
+<ul id="item-list"></ul>
+
+<h2>Store Layout Map</h2>
+<img id="map" src="assets/maps/floor1_shops.png">
+
+<script src="js/app.js"></script>
 </body>
 </html>
