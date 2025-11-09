@@ -1,1 +1,7 @@
+[
+  { "name": "Apple Juice", "price": 90, "discount": 10, "location": "Floor 2" },
+  { "name": "Shirt", "price": 450, "discount": 20, "location": "Floor 2" },
+  { "name": "Headphones", "price": 799, "discount": 5, "location": "Floor 3" },
+  { "name": "Toy Car", "price": 120, "discount": 15, "location": "Floor 4" }
+]
 
