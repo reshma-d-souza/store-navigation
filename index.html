@@ -1,195 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Live In-Store Navigation with Waypoints</title>
-<style>
-body { font-family: Arial, sans-serif; margin:0; background:#f7f7f7; }
-header { background:#007BFF; color:white; padding:20px; text-align:center; }
-main { display:flex; flex-wrap: wrap; padding:20px; }
-#mapContainer { flex:2; min-width:400px; height:500px; border:2px solid #ccc; margin-right:20px; position:relative; background:#eaeaea; overflow:hidden; }
-svg { width:100%; height:100%; }
-.store, .facility { cursor:pointer; }
-.store rect { fill:#007BFF; }
-.facility rect { fill:orange; }
-.path { fill:none; stroke:#888; stroke-width:10; stroke-linecap:round; }
-#person { position:absolute; width:20px; height:20px; background:red; border-radius:50%; top:0; left:0; transform:translate(-10px,-10px); z-index:100; }
-#controls { flex:1; min-width:250px; }
-h2 { color:#333; margin-top:0; }
-select, button { width:100%; padding:8px; margin:5px 0; font-size:16px; }
-table { width:100%; border-collapse:collapse; margin-top:10px; }
-th, td { border:1px solid #ccc; padding:5px; text-align:left; }
-th { background:#007BFF; color:white; }
-</style>
-</head>
-<body>
-<header>
-  <h1>Live In-Store Navigation with Waypoints</h1>
-</header>
-<main>
-<div id="mapContainer">
-<svg id="mallMap">
-  <!-- Corridors as straight lines for simplicity -->
-  <line x1="50" y1="50" x2="50" y2="200" class="path"/>
-  <line x1="50" y1="200" x2="200" y2="200" class="path"/>
-  <line x1="200" y1="200" x2="200" y2="50" class="path"/>
-  <line x1="200" y1="50" x2="350" y2="50" class="path"/>
-  <line x1="350" y1="50" x2="350" y2="200" class="path"/>
-
-  <!-- Stores -->
-  <g class="store" data-store="Grocery">
-    <rect x="30" y="30" width="40" height="40"/>
-    <text x="50" y="55" font-size="12" fill="white" text-anchor="middle">Grocery</text>
-  </g>
-  <g class="store" data-store="Clothing">
-    <rect x="180" y="30" width="40" height="40"/>
-    <text x="200" y="55" font-size="12" fill="white" text-anchor="middle">Clothing</text>
-  </g>
-  <g class="store" data-store="Electronics">
-    <rect x="30" y="180" width="40" height="40"/>
-    <text x="50" y="205" font-size="12" fill="white" text-anchor="middle">Electronics</text>
-  </g>
-  <g class="store" data-store="Movies">
-    <rect x="180" y="180" width="40" height="40"/>
-    <text x="200" y="205" font-size="12" fill="white" text-anchor="middle">Movies</text>
-  </g>
-</svg>
-<div id="person"></div>
-</div>
-
-<div id="controls">
-<h2>Select Item</h2>
-<select id="itemSelect">
-  <option value="">--Select Item--</option>
-</select>
-<button onclick="goToItem()">Go to Item</button>
-
-<h2>Item List & Rates</h2>
-<table id="itemsTable">
-<thead><tr><th>Item</th><th>Rate</th></tr></thead>
-<tbody><tr><td colspan="2">Select a store or item</td></tr></tbody>
-</table>
-</div>
-</main>
-
-<script>
-// Store items
-const storeItems = {
-"Grocery":[{name:"Rice",rate:"$50/kg"}, {name:"Milk",rate:"$1/litre"}],
-"Clothing":[{name:"Shirt",rate:"$20"}, {name:"Jacket",rate:"$60"}],
-"Electronics":[{name:"Laptop",rate:"$800"}, {name:"Smartphone",rate:"$500"}],
-"Movies":[{name:"DVDs",rate:"$10"}, {name:"Blu-ray",rate:"$15"}]
-};
-
-// Map item -> store
-let itemToStore = {};
-for(let store in storeItems){
-  storeItems[store].forEach(item=> itemToStore[item.name] = store);
-}
-
-// Populate item select
-const itemSelect = document.getElementById('itemSelect');
-for(let item in itemToStore){
-  const option = document.createElement('option');
-  option.value = item;
-  option.textContent = item;
-  itemSelect.appendChild(option);
-}
-
-// Show items
-const itemsTableBody = document.querySelector('#itemsTable tbody');
-function showItems(storeName){
-  const items = storeItems[storeName] || [];
-  if(items.length===0){
-    itemsTableBody.innerHTML='<tr><td colspan="2">No items available</td></tr>';
-  } else {
-    itemsTableBody.innerHTML = items.map(i=>`<tr><td>${i.name}</td><td>${i.rate}</td></tr>`).join('');
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>In-Store Navigator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/"
   }
 }
-
-// Person marker
-const person = document.getElementById('person');
-
-// Waypoints along corridor path (x,y)
-const waypoints = [
-  {x:50, y:50}, {x:50, y:200}, {x:200, y:200}, {x:200, y:50}, {x:350, y:50}, {x:350, y:200}
-];
-
-// Store positions (center)
-const storePositions = {
-"Grocery": {x:50, y:50},
-"Clothing": {x:200, y:50},
-"Electronics": {x:50, y:200},
-"Movies": {x:200, y:200}
-};
-
-// Current location index
-let currentPos = {x:50, y:50};
-
-// Animate along path
-function movePersonToStore(storeName){
-  const dest = storePositions[storeName];
-  if(!dest) return;
-
-  showItems(storeName);
-
-  // Find nearest waypoint to current position
-  let startIndex = 0;
-  let minDist = Infinity;
-  for(let i=0;i<waypoints.length;i++){
-    const dx = waypoints[i].x - currentPos.x;
-    const dy = waypoints[i].y - currentPos.y;
-    const dist = Math.sqrt(dx*dx+dy*dy);
-    if(dist < minDist){
-      minDist = dist;
-      startIndex = i;
-    }
-  }
-
-  // Find waypoint closest to destination
-  let endIndex = 0;
-  minDist = Infinity;
-  for(let i=0;i<waypoints.length;i++){
-    const dx = waypoints[i].x - dest.x;
-    const dy = waypoints[i].y - dest.y;
-    const dist = Math.sqrt(dx*dx+dy*dy);
-    if(dist < minDist){
-      minDist = dist;
-      endIndex = i;
-    }
-  }
-
-  // Slice the waypoints path
-  const pathPoints = startIndex < endIndex ? waypoints.slice(startIndex,endIndex+1) : waypoints.slice(endIndex,startIndex+1).reverse();
-  pathPoints.push(dest); // final store center
-
-  // Animate along path points
-  let index = 0;
-  function animate(){
-    if(index >= pathPoints.length) return;
-    const point = pathPoints[index];
-    person.style.left = point.x + 'px';
-    person.style.top = point.y + 'px';
-    currentPos = {x:point.x, y:point.y};
-    index++;
-    setTimeout(animate, 500); // speed of movement
-  }
-  animate();
-}
-
-// Go to selected item
-function goToItem(){
-  const item = itemSelect.value;
-  if(!item) return alert("Select an item");
-  const store = itemToStore[item];
-  movePersonToStore(store);
-}
-
-// Click store to move
-document.querySelectorAll('.store').forEach(el=>{
-  el.addEventListener('click', ()=> movePersonToStore(el.dataset.store));
-});
 </script>
-</body>
+</head>
+  <body class="bg-gray-100 dark:bg-gray-900">
+    <div id="app-container" class="min-h-screen font-sans text-gray-800 dark:text-gray-200">
+      <!-- Header will be rendered here by script.js -->
+      <header id="header-container"></header>
+      
+      <main class="container mx-auto p-4 lg:p-6">
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+          <div class="lg:col-span-3 bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-4 lg:p-6 flex flex-col items-center justify-center">
+            <h2 class="text-xl font-bold mb-4 self-start text-gray-700 dark:text-gray-300">Floor Map</h2>
+            <div id="map-container" class="w-full"></div>
+          </div>
+          <div class="lg:col-span-2 flex flex-col gap-6">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-4 lg:p-6">
+              <div id="item-list-container"></div>
+            </div>
+            <div id="cart-wrapper" class="hidden">
+              <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-4 lg:p-6 sticky bottom-4">
+                <div id="cart-container"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+    
+    <!-- Modals will be rendered here by script.js -->
+    <div id="modal-container"></div>
+
+    <script src="script.js"></script>
+  </body>
 </html>
