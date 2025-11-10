@@ -46,14 +46,22 @@
       flex: 1;
       min-width: 250px;
     }
-    #item-list, #facility-list {
-      margin-bottom: 20px;
-    }
     h2 {
       color: #333;
     }
-    ul {
-      padding-left: 20px;
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #007BFF;
+      color: white;
     }
     button {
       width: 100%;
@@ -89,10 +97,18 @@
 
     <div id="controls">
       <div id="item-list">
-        <h2>Available Items</h2>
-        <ul id="itemsUl">
-          <li>Select a store to view items</li>
-        </ul>
+        <h2>Available Items & Rates</h2>
+        <table id="itemsTable">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Rate</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="2">Select a store to view items</td></tr>
+          </tbody>
+        </table>
       </div>
 
       <div id="facility-list">
@@ -114,13 +130,38 @@
   </main>
 
   <script>
-    // Store items
+    // Store items with rates
     const storeItems = {
-      "Grocery": ["Rice", "Milk", "Eggs", "Vegetables", "Fruits"],
-      "Clothing": ["Shirts", "Trousers", "Dresses", "Shoes", "Jackets"],
-      "Electronics": ["Laptop", "Smartphone", "Headphones", "Camera"],
-      "Movies": ["DVDs", "Blu-ray", "Movie Posters"],
-      "Gaming Zone": ["Gaming Console", "Games", "Accessories"],
+      "Grocery": [
+        { name: "Rice", rate: "$50/kg" },
+        { name: "Milk", rate: "$1/litre" },
+        { name: "Eggs", rate: "$0.2/egg" },
+        { name: "Vegetables", rate: "$3/kg" },
+        { name: "Fruits", rate: "$4/kg" }
+      ],
+      "Clothing": [
+        { name: "Shirt", rate: "$20" },
+        { name: "Trousers", rate: "$25" },
+        { name: "Dress", rate: "$40" },
+        { name: "Shoes", rate: "$50" },
+        { name: "Jacket", rate: "$60" }
+      ],
+      "Electronics": [
+        { name: "Laptop", rate: "$800" },
+        { name: "Smartphone", rate: "$500" },
+        { name: "Headphones", rate: "$50" },
+        { name: "Camera", rate: "$400" }
+      ],
+      "Movies": [
+        { name: "DVDs", rate: "$10" },
+        { name: "Blu-ray", rate: "$15" },
+        { name: "Movie Posters", rate: "$5" }
+      ],
+      "Gaming Zone": [
+        { name: "Gaming Console", rate: "$300" },
+        { name: "Games", rate: "$50" },
+        { name: "Accessories", rate: "$20" }
+      ],
       "Washroom Men": [],
       "Washroom Women": [],
       "Mall Office": [],
@@ -131,7 +172,7 @@
     };
 
     const markers = document.querySelectorAll('#map .store');
-    const itemsUl = document.getElementById('itemsUl');
+    const itemsTableBody = document.querySelector('#itemsTable tbody');
 
     markers.forEach(marker => {
       marker.addEventListener('click', () => {
@@ -153,7 +194,11 @@
 
     function showItems(storeName) {
       const items = storeItems[storeName];
-      itemsUl.innerHTML = items.length > 0 ? items.map(item => `<li>${item}</li>`).join('') : '<li>No items available</li>';
+      if (items.length === 0) {
+        itemsTableBody.innerHTML = '<tr><td colspan="2">No items available</td></tr>';
+      } else {
+        itemsTableBody.innerHTML = items.map(item => `<tr><td>${item.name}</td><td>${item.rate}</td></tr>`).join('');
+      }
     }
   </script>
 </body>
