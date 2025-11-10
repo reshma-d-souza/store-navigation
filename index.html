@@ -3,12 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Interactive Mall Navigation</title>
+<title>Multi-Floor Mall Navigation</title>
 <style>
 body { font-family: Arial, sans-serif; margin:0; background:#f7f7f7; }
 header { background:#007BFF; color:white; padding:20px; text-align:center; }
 main { display:flex; flex-wrap: wrap; padding:20px; }
-#map { flex:2; min-width:400px; height:500px; border:2px solid #ccc; margin-right:20px; background:#eaeaea; position:relative; display:grid; grid-template-columns: repeat(10, 40px); grid-template-rows: repeat(12, 40px); gap:2px; }
+#mapContainer { flex:2; min-width:400px; height:500px; border:2px solid #ccc; margin-right:20px; position:relative; overflow:hidden; background:#eaeaea; }
+.floor { display:none; width:100%; height:100%; position:absolute; top:0; left:0; }
+.floor.active { display:grid; grid-template-columns: repeat(10, 40px); grid-template-rows: repeat(12, 40px); gap:2px; }
 .store, .facility { display:flex; align-items:center; justify-content:center; background:rgba(0,123,255,0.8); color:white; border-radius:5px; cursor:pointer; font-size:12px; text-align:center; }
 .facility { background:orange; }
 #person { position:absolute; width:20px; height:20px; background:red; border-radius:50%; top:0; left:0; transition: top 1s linear, left 1s linear; z-index:100; }
@@ -22,27 +24,34 @@ th { background:#007BFF; color:white; }
 </head>
 <body>
 <header>
-  <h1>Mall Navigation System</h1>
+  <h1>Multi-Floor Mall Navigation</h1>
 </header>
 <main>
-  <div id="map">
-    <!-- Stores with grid position -->
-    <div class="store" data-name="Grocery" style="grid-column:2/4; grid-row:2/4;">Grocery</div>
-    <div class="store" data-name="Clothing" style="grid-column:5/7; grid-row:2/4;">Clothing</div>
-    <div class="store" data-name="Electronics" style="grid-column:2/4; grid-row:5/7;">Electronics</div>
-    <div class="store" data-name="Movies" style="grid-column:5/7; grid-row:5/7;">Movies</div>
-    <div class="store" data-name="Gaming Zone" style="grid-column:8/10; grid-row:5/7;">Gaming</div>
-    <!-- Facilities -->
-    <div class="facility" data-name="Washroom Men" style="grid-column:1/2; grid-row:8/9;">Men</div>
-    <div class="facility" data-name="Washroom Women" style="grid-column:2/3; grid-row:8/9;">Women</div>
-    <div class="facility" data-name="Escalator" style="grid-column:5/6; grid-row:8/9;">Escalator</div>
-    <div class="facility" data-name="Stairs" style="grid-column:7/8; grid-row:8/9;">Stairs</div>
-    <div class="facility" data-name="Checkout" style="grid-column:9/10; grid-row:10/11;">Checkout</div>
+  <div id="mapContainer">
+    <!-- Floor 1 -->
+    <div class="floor active" id="floor1">
+      <div class="store" data-name="Grocery" style="grid-column:2/4; grid-row:2/4;">Grocery</div>
+      <div class="store" data-name="Clothing" style="grid-column:5/7; grid-row:2/4;">Clothing</div>
+      <div class="facility" data-name="Escalator" style="grid-column:8/9; grid-row:5/6;">Escalator</div>
+      <div class="facility" data-name="Stairs" style="grid-column:9/10; grid-row:5/6;">Stairs</div>
+    </div>
+    <!-- Floor 2 -->
+    <div class="floor" id="floor2">
+      <div class="store" data-name="Electronics" style="grid-column:2/4; grid-row:2/4;">Electronics</div>
+      <div class="store" data-name="Movies" style="grid-column:5/7; grid-row:2/4;">Movies</div>
+      <div class="store" data-name="Gaming Zone" style="grid-column:8/10; grid-row:5/7;">Gaming</div>
+      <div class="facility" data-name="Washroom Men" style="grid-column:1/2; grid-row:10/11;">Men</div>
+      <div class="facility" data-name="Washroom Women" style="grid-column:2/3; grid-row:10/11;">Women</div>
+    </div>
     <!-- Person -->
     <div id="person"></div>
   </div>
 
   <div id="controls">
+    <h2>Select Floor</h2>
+    <button onclick="showFloor(1)">Floor 1</button>
+    <button onclick="showFloor(2)">Floor 2</button>
+
     <h2>Select Item</h2>
     <select id="itemSelect">
       <option value="">--Select Item--</option>
@@ -58,10 +67,10 @@ th { background:#007BFF; color:white; }
 </main>
 
 <script>
-// Store items with rates
+// Store items with floor info
 const storeItems = {
-"Grocery":[{name:"Rice",rate:"$50/kg"},{name:"Milk",rate:"$1/litre"},{name:"Eggs",rate:"$0.2/egg"}],
-"Clothing":[{name:"Shirt",rate:"$20"},{name:"Trousers",rate:"$25"},{name:"Jacket",rate:"$60"}],
+"Grocery":[{name:"Rice",rate:"$50/kg"},{name:"Milk",rate:"$1/litre"}],
+"Clothing":[{name:"Shirt",rate:"$20"},{name:"Jacket",rate:"$60"}],
 "Electronics":[{name:"Laptop",rate:"$800"},{name:"Smartphone",rate:"$500"}],
 "Movies":[{name:"DVDs",rate:"$10"},{name:"Blu-ray",rate:"$15"}],
 "Gaming Zone":[{name:"Console",rate:"$300"},{name:"Games",rate:"$50"}]
@@ -84,18 +93,37 @@ for(let item in itemToStore){
   itemSelect.appendChild(option);
 }
 
-// Move person to store
+const floors = document.querySelectorAll('.floor');
+function showFloor(floorNum){
+  floors.forEach(f=>f.classList.remove('active'));
+  document.getElementById('floor'+floorNum).classList.add('active');
+}
+
+// Person animation
 const person = document.getElementById('person');
 function movePersonToStore(storeName){
-  const target = Array.from(document.querySelectorAll('.store, .facility')).find(e=>e.dataset.name===storeName);
-  if(!target) return;
-  const mapRect = document.getElementById('map').getBoundingClientRect();
+  const target = Array.from(document.querySelectorAll('.floor.active .store, .floor.active .facility')).find(e=>e.dataset.name===storeName);
+  if(!target) {
+    // Switch floor if store not on current floor
+    const floorIds = ["floor1","floor2"];
+    let targetFloor;
+    floorIds.forEach(fId=>{
+      const el = document.querySelector('#'+fId+' [data-name="'+storeName+'"]');
+      if(el) targetFloor=el;
+    });
+    if(targetFloor){
+      floors.forEach(f=>f.classList.remove('active'));
+      targetFloor.parentElement.classList.add('active');
+      setTimeout(()=>movePersonToStore(storeName),300); // wait for floor change
+    }
+    return;
+  }
+  const mapRect = document.getElementById('mapContainer').getBoundingClientRect();
   const targetRect = target.getBoundingClientRect();
   const top = targetRect.top - mapRect.top + target.offsetHeight/2 - person.offsetHeight/2;
   const left = targetRect.left - mapRect.left + target.offsetWidth/2 - person.offsetWidth/2;
   person.style.top = top+'px';
   person.style.left = left+'px';
-  // Show items of store
   showItems(storeName);
 }
 
