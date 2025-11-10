@@ -3,212 +3,123 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Animated In-Store Navigation</title>
+  <title>Interactive Mall Navigation</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      background-color: #f7f7f7;
-    }
-    header {
-      background-color: #007BFF;
-      color: white;
-      padding: 20px;
-      text-align: center;
-    }
-    main {
-      display: flex;
-      flex-wrap: wrap;
-      padding: 20px;
-    }
-    #map {
-      flex: 2;
-      min-width: 300px;
-      height: 500px;
-      border: 2px solid #ccc;
-      margin-right: 20px;
-      background-color: #eaeaea;
-      position: relative;
-      overflow: hidden;
-    }
-    #map .store {
-      position: absolute;
-      padding: 5px 10px;
-      background-color: rgba(0,123,255,0.8);
-      color: white;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: transform 0.5s, background-color 0.3s;
-    }
-    #map .store:hover {
-      background-color: #0056b3;
-      transform: scale(1.2);
-    }
-    #map .highlight {
-      animation: pulse 1s infinite;
-    }
-    @keyframes pulse {
-      0% { transform: scale(1); background-color: red; }
-      50% { transform: scale(1.3); background-color: orange; }
-      100% { transform: scale(1); background-color: red; }
-    }
-    #controls {
-      flex: 1;
-      min-width: 250px;
-    }
-    h2 {
-      color: #333;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
-      text-align: left;
-    }
-    th {
-      background-color: #007BFF;
-      color: white;
-    }
-    button {
-      width: 100%;
-      padding: 8px;
-      margin: 5px 0;
-      font-size: 16px;
-      cursor: pointer;
-    }
+    body { font-family: Arial, sans-serif; margin:0; background:#f7f7f7; }
+    header { background:#007BFF; color:white; padding:20px; text-align:center; }
+    main { display:flex; flex-wrap: wrap; padding:20px; }
+    #map { flex:2; min-width:300px; height:500px; border:2px solid #ccc; margin-right:20px; background:#eaeaea; position:relative; }
+    #map .store { position:absolute; padding:5px 10px; background:rgba(0,123,255,0.8); color:white; border-radius:5px; cursor:pointer; transition: background-color 0.3s, transform 0.3s; }
+    #map .store:hover { transform:scale(1.2); background:#0056b3; }
+    #map .highlight { animation: pulse 1s infinite; }
+    @keyframes pulse { 0% { transform: scale(1); background-color:red; } 50% { transform: scale(1.3); background-color:orange; } 100% { transform: scale(1); background-color:red; } }
+    #person { position:absolute; width:20px; height:20px; background:red; border-radius:50%; top:0; left:0; transition: top 1s linear, left 1s linear; }
+    #controls { flex:1; min-width:250px; }
+    h2 { color:#333; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border:1px solid #ccc; padding:8px; text-align:left; }
+    th { background:#007BFF; color:white; }
+    button { width:100%; padding:8px; margin:5px 0; font-size:16px; cursor:pointer; }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Animated In-Store Navigation</h1>
-  </header>
-  <main>
-    <div id="map">
-      <!-- Stores -->
-      <div class="store" style="top: 50px; left: 100px;" data-name="Grocery">Grocery</div>
-      <div class="store" style="top: 150px; left: 50px;" data-name="Clothing">Clothing</div>
-      <div class="store" style="top: 250px; left: 200px;" data-name="Electronics">Electronics</div>
-      <div class="store" style="top: 350px; left: 150px;" data-name="Movies">Movies</div>
-      <div class="store" style="top: 400px; left: 300px;" data-name="Gaming Zone">Gaming</div>
+<header>
+  <h1>Interactive Mall Navigation</h1>
+</header>
+<main>
+  <div id="map">
+    <!-- Stores -->
+    <div class="store" style="top:50px; left:100px;" data-name="Grocery">Grocery</div>
+    <div class="store" style="top:150px; left:50px;" data-name="Clothing">Clothing</div>
+    <div class="store" style="top:250px; left:200px;" data-name="Electronics">Electronics</div>
+    <div class="store" style="top:350px; left:150px;" data-name="Movies">Movies</div>
+    <div class="store" style="top:400px; left:300px;" data-name="Gaming Zone">Gaming</div>
+    <!-- Facilities -->
+    <div class="store" style="top:450px; left:50px;" data-name="Washroom Men">Men</div>
+    <div class="store" style="top:450px; left:120px;" data-name="Washroom Women">Women</div>
+    <div class="store" style="top:20px; left:250px;" data-name="Mall Office">Office</div>
+    <div class="store" style="top:300px; left:20px;" data-name="Escalators">Escalator</div>
+    <div class="store" style="top:300px; left:100px;" data-name="Stairs">Stairs</div>
+    <div class="store" style="top:500px; left:250px;" data-name="Parking">Parking</div>
+    <div class="store" style="top:500px; left:50px;" data-name="Checkout">Checkout</div>
+    <!-- Person -->
+    <div id="person"></div>
+  </div>
 
-      <!-- Facilities -->
-      <div class="store" style="top: 450px; left: 50px;" data-name="Washroom Men">Men</div>
-      <div class="store" style="top: 450px; left: 120px;" data-name="Washroom Women">Women</div>
-      <div class="store" style="top: 20px; left: 250px;" data-name="Mall Office">Office</div>
-      <div class="store" style="top: 300px; left: 20px;" data-name="Escalators">Escalator</div>
-      <div class="store" style="top: 300px; left: 100px;" data-name="Stairs">Stairs</div>
-      <div class="store" style="top: 500px; left: 250px;" data-name="Parking">Parking</div>
-      <div class="store" style="top: 500px; left: 50px;" data-name="Checkout">Checkout</div>
+  <div id="controls">
+    <div id="item-list">
+      <h2>Available Items & Rates</h2>
+      <table id="itemsTable">
+        <thead><tr><th>Item</th><th>Rate</th></tr></thead>
+        <tbody><tr><td colspan="2">Select a store to view items</td></tr></tbody>
+      </table>
     </div>
-
-    <div id="controls">
-      <div id="item-list">
-        <h2>Available Items & Rates</h2>
-        <table id="itemsTable">
-          <thead>
-            <tr>
-              <th>Item</th>
-              <th>Rate</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td colspan="2">Select a store to view items</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div id="facility-list">
-        <h2>Facilities</h2>
-        <button onclick="highlight('Washroom Men')">Men's Washroom</button>
-        <button onclick="highlight('Washroom Women')">Women's Washroom</button>
-        <button onclick="highlight('Mall Office')">Mall Office</button>
-        <button onclick="highlight('Escalators')">Escalators</button>
-        <button onclick="highlight('Stairs')">Stairs</button>
-        <button onclick="highlight('Parking')">Parking</button>
-        <button onclick="highlight('Checkout')">Checkout</button>
-      </div>
-
-      <div id="payment">
-        <h2>Payment Option</h2>
-        <button onclick="alert('Proceed to Payment')">Pay Now</button>
-      </div>
+    <div id="facility-list">
+      <h2>Facilities</h2>
+      <button onclick="movePersonTo('Washroom Men')">Men's Washroom</button>
+      <button onclick="movePersonTo('Washroom Women')">Women's Washroom</button>
+      <button onclick="movePersonTo('Mall Office')">Mall Office</button>
+      <button onclick="movePersonTo('Escalators')">Escalators</button>
+      <button onclick="movePersonTo('Stairs')">Stairs</button>
+      <button onclick="movePersonTo('Parking')">Parking</button>
+      <button onclick="movePersonTo('Checkout')">Checkout</button>
     </div>
-  </main>
+    <div id="payment">
+      <h2>Payment Option</h2>
+      <button onclick="alert('Proceed to Payment')">Pay Now</button>
+    </div>
+  </div>
+</main>
 
-  <script>
-    // Store items with rates
-    const storeItems = {
-      "Grocery": [
-        { name: "Rice", rate: "$50/kg" },
-        { name: "Milk", rate: "$1/litre" },
-        { name: "Eggs", rate: "$0.2/egg" },
-        { name: "Vegetables", rate: "$3/kg" },
-        { name: "Fruits", rate: "$4/kg" }
-      ],
-      "Clothing": [
-        { name: "Shirt", rate: "$20" },
-        { name: "Trousers", rate: "$25" },
-        { name: "Dress", rate: "$40" },
-        { name: "Shoes", rate: "$50" },
-        { name: "Jacket", rate: "$60" }
-      ],
-      "Electronics": [
-        { name: "Laptop", rate: "$800" },
-        { name: "Smartphone", rate: "$500" },
-        { name: "Headphones", rate: "$50" },
-        { name: "Camera", rate: "$400" }
-      ],
-      "Movies": [
-        { name: "DVDs", rate: "$10" },
-        { name: "Blu-ray", rate: "$15" },
-        { name: "Movie Posters", rate: "$5" }
-      ],
-      "Gaming Zone": [
-        { name: "Gaming Console", rate: "$300" },
-        { name: "Games", rate: "$50" },
-        { name: "Accessories", rate: "$20" }
-      ],
-      "Washroom Men": [],
-      "Washroom Women": [],
-      "Mall Office": [],
-      "Escalators": [],
-      "Stairs": [],
-      "Parking": [],
-      "Checkout": []
-    };
+<script>
+const storeItems = {
+"Grocery":[{name:"Rice",rate:"$50/kg"},{name:"Milk",rate:"$1/litre"},{name:"Eggs",rate:"$0.2/egg"},{name:"Vegetables",rate:"$3/kg"},{name:"Fruits",rate:"$4/kg"}],
+"Clothing":[{name:"Shirt",rate:"$20"},{name:"Trousers",rate:"$25"},{name:"Dress",rate:"$40"},{name:"Shoes",rate:"$50"},{name:"Jacket",rate:"$60"}],
+"Electronics":[{name:"Laptop",rate:"$800"},{name:"Smartphone",rate:"$500"},{name:"Headphones",rate:"$50"},{name:"Camera",rate:"$400"}],
+"Movies":[{name:"DVDs",rate:"$10"},{name:"Blu-ray",rate:"$15"},{name:"Movie Posters",rate:"$5"}],
+"Gaming Zone":[{name:"Gaming Console",rate:"$300"},{name:"Games",rate:"$50"},{name:"Accessories",rate:"$20"}],
+"Washroom Men":[],"Washroom Women":[],"Mall Office":[],"Escalators":[],"Stairs":[],"Parking":[],"Checkout":[]
+};
 
-    const markers = document.querySelectorAll('#map .store');
-    const itemsTableBody = document.querySelector('#itemsTable tbody');
+const markers = document.querySelectorAll('#map .store');
+const itemsTableBody = document.querySelector('#itemsTable tbody');
+const person = document.getElementById('person');
 
-    markers.forEach(marker => {
-      marker.addEventListener('click', () => {
-        highlight(marker.dataset.name);
-        showItems(marker.dataset.name);
-      });
-    });
+markers.forEach(marker=>{
+  marker.addEventListener('click',()=>{
+    highlight(marker.dataset.name);
+    showItems(marker.dataset.name);
+    movePersonTo(marker.dataset.name);
+  });
+});
 
-    function highlight(name) {
-      markers.forEach(marker => {
-        marker.classList.remove('highlight');
-        if (marker.dataset.name === name) {
-          marker.classList.add('highlight');
-          marker.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      });
-    }
+function highlight(name){
+  markers.forEach(marker=>marker.classList.remove('highlight'));
+  const target = Array.from(markers).find(m=>m.dataset.name===name);
+  if(target) target.classList.add('highlight');
+}
 
-    function showItems(storeName) {
-      const items = storeItems[storeName];
-      if (items.length === 0) {
-        itemsTableBody.innerHTML = '<tr><td colspan="2">No items available</td></tr>';
-      } else {
-        itemsTableBody.innerHTML = items.map(item => `<tr><td>${item.name}</td><td>${item.rate}</td></tr>`).join('');
-      }
-    }
-  </script>
+function showItems(storeName){
+  const items=storeItems[storeName];
+  if(items.length===0){
+    itemsTableBody.innerHTML='<tr><td colspan="2">No items available</td></tr>';
+  } else {
+    itemsTableBody.innerHTML = items.map(item=>`<tr><td>${item.name}</td><td>${item.rate}</td></tr>`).join('');
+  }
+}
+
+function movePersonTo(storeName){
+  const target = Array.from(markers).find(m=>m.dataset.name===storeName);
+  if(target){
+    const mapRect = document.getElementById('map').getBoundingClientRect();
+    const storeRect = target.getBoundingClientRect();
+    // Adjust for map container position
+    const top = storeRect.top - mapRect.top + target.offsetHeight/2 - person.offsetHeight/2;
+    const left = storeRect.left - mapRect.left + target.offsetWidth/2 - person.offsetWidth/2;
+    person.style.top = top + 'px';
+    person.style.left = left + 'px';
+  }
+}
+</script>
 </body>
 </html>
