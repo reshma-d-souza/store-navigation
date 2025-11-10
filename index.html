@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Live In-Store Navigation</title>
+<title>Live In-Store Navigation with Waypoints</title>
 <style>
 body { font-family: Arial, sans-serif; margin:0; background:#f7f7f7; }
 header { background:#007BFF; color:white; padding:20px; text-align:center; }
@@ -25,13 +25,17 @@ th { background:#007BFF; color:white; }
 </head>
 <body>
 <header>
-  <h1>Live In-Store Navigation</h1>
+  <h1>Live In-Store Navigation with Waypoints</h1>
 </header>
 <main>
 <div id="mapContainer">
 <svg id="mallMap">
-  <!-- Corridor path -->
-  <path id="corridorPath" class="path" d="50,50 L50,200 L200,200 L200,50 L350,50 L350,200" />
+  <!-- Corridors as straight lines for simplicity -->
+  <line x1="50" y1="50" x2="50" y2="200" class="path"/>
+  <line x1="50" y1="200" x2="200" y2="200" class="path"/>
+  <line x1="200" y1="200" x2="200" y2="50" class="path"/>
+  <line x1="200" y1="50" x2="350" y2="50" class="path"/>
+  <line x1="350" y1="50" x2="350" y2="200" class="path"/>
 
   <!-- Stores -->
   <g class="store" data-store="Grocery">
@@ -78,7 +82,7 @@ const storeItems = {
 "Movies":[{name:"DVDs",rate:"$10"}, {name:"Blu-ray",rate:"$15"}]
 };
 
-// Item -> store map
+// Map item -> store
 let itemToStore = {};
 for(let store in storeItems){
   storeItems[store].forEach(item=> itemToStore[item.name] = store);
@@ -93,7 +97,7 @@ for(let item in itemToStore){
   itemSelect.appendChild(option);
 }
 
-// Show items in table
+// Show items
 const itemsTableBody = document.querySelector('#itemsTable tbody');
 function showItems(storeName){
   const items = storeItems[storeName] || [];
@@ -104,46 +108,74 @@ function showItems(storeName){
   }
 }
 
-// Animate person along SVG path
+// Person marker
 const person = document.getElementById('person');
-const path = document.getElementById('corridorPath');
-const pathLength = path.getTotalLength();
 
-function movePersonAlongPath(storeName){
-  const target = document.querySelector('[data-store="'+storeName+'"] rect');
-  if(!target) return;
+// Waypoints along corridor path (x,y)
+const waypoints = [
+  {x:50, y:50}, {x:50, y:200}, {x:200, y:200}, {x:200, y:50}, {x:350, y:50}, {x:350, y:200}
+];
 
-  // Find closest point on path to target
-  const mapRect = document.getElementById('mallMap').getBoundingClientRect();
-  const targetRect = target.getBoundingClientRect();
-  const targetX = targetRect.left - mapRect.left + targetRect.width/2;
-  const targetY = targetRect.top - mapRect.top + targetRect.height/2;
+// Store positions (center)
+const storePositions = {
+"Grocery": {x:50, y:50},
+"Clothing": {x:200, y:50},
+"Electronics": {x:50, y:200},
+"Movies": {x:200, y:200}
+};
 
-  let closestPoint = 0;
+// Current location index
+let currentPos = {x:50, y:50};
+
+// Animate along path
+function movePersonToStore(storeName){
+  const dest = storePositions[storeName];
+  if(!dest) return;
+
+  showItems(storeName);
+
+  // Find nearest waypoint to current position
+  let startIndex = 0;
   let minDist = Infinity;
-  for(let i=0;i<=pathLength;i+=1){
-    const point = path.getPointAtLength(i);
-    const dx = point.x - targetX;
-    const dy = point.y - targetY;
-    const dist = Math.sqrt(dx*dx + dy*dy);
+  for(let i=0;i<waypoints.length;i++){
+    const dx = waypoints[i].x - currentPos.x;
+    const dy = waypoints[i].y - currentPos.y;
+    const dist = Math.sqrt(dx*dx+dy*dy);
     if(dist < minDist){
       minDist = dist;
-      closestPoint = i;
+      startIndex = i;
     }
   }
 
-  // Animate along path
-  let progress = 0;
+  // Find waypoint closest to destination
+  let endIndex = 0;
+  minDist = Infinity;
+  for(let i=0;i<waypoints.length;i++){
+    const dx = waypoints[i].x - dest.x;
+    const dy = waypoints[i].y - dest.y;
+    const dist = Math.sqrt(dx*dx+dy*dy);
+    if(dist < minDist){
+      minDist = dist;
+      endIndex = i;
+    }
+  }
+
+  // Slice the waypoints path
+  const pathPoints = startIndex < endIndex ? waypoints.slice(startIndex,endIndex+1) : waypoints.slice(endIndex,startIndex+1).reverse();
+  pathPoints.push(dest); // final store center
+
+  // Animate along path points
+  let index = 0;
   function animate(){
-    if(progress > closestPoint) return;
-    const pos = path.getPointAtLength(progress);
-    person.style.left = pos.x + 'px';
-    person.style.top = pos.y + 'px';
-    progress += 2; // speed
-    requestAnimationFrame(animate);
+    if(index >= pathPoints.length) return;
+    const point = pathPoints[index];
+    person.style.left = point.x + 'px';
+    person.style.top = point.y + 'px';
+    currentPos = {x:point.x, y:point.y};
+    index++;
+    setTimeout(animate, 500); // speed of movement
   }
   animate();
-  showItems(storeName);
 }
 
 // Go to selected item
@@ -151,12 +183,12 @@ function goToItem(){
   const item = itemSelect.value;
   if(!item) return alert("Select an item");
   const store = itemToStore[item];
-  movePersonAlongPath(store);
+  movePersonToStore(store);
 }
 
 // Click store to move
 document.querySelectorAll('.store').forEach(el=>{
-  el.addEventListener('click', ()=> movePersonAlongPath(el.dataset.store));
+  el.addEventListener('click', ()=> movePersonToStore(el.dataset.store));
 });
 </script>
 </body>
