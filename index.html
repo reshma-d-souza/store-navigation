@@ -1,26 +1,131 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>In-Store Navigation System</title>
-<style>
-body { font-family: Arial; padding: 20px; }
-#map { width: 100%; max-width: 500px; border: 2px solid black; margin-top: 20px; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>In-Store Navigation System</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background-color: #f7f7f7;
+    }
+    header {
+      background-color: #007BFF;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    main {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 20px;
+    }
+    #map {
+      flex: 2;
+      min-width: 300px;
+      height: 500px;
+      border: 2px solid #ccc;
+      margin-right: 20px;
+      background-color: #eaeaea;
+      position: relative;
+    }
+    #map div {
+      position: absolute;
+      padding: 5px 10px;
+      background-color: rgba(0,123,255,0.8);
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #controls {
+      flex: 1;
+      min-width: 250px;
+    }
+    #item-list, #facility-list {
+      margin-bottom: 20px;
+    }
+    h2 {
+      color: #333;
+    }
+    select, button {
+      width: 100%;
+      padding: 8px;
+      margin: 5px 0;
+      font-size: 16px;
+    }
+  </style>
 </head>
 <body>
+  <header>
+    <h1>In-Store Navigation System</h1>
+  </header>
+  <main>
+    <div id="map">
+      <!-- Sample map markers -->
+      <div style="top: 50px; left: 100px;" title="Grocery">Grocery</div>
+      <div style="top: 150px; left: 50px;" title="Clothing">Clothing</div>
+      <div style="top: 250px; left: 200px;" title="Electronics">Electronics</div>
+      <div style="top: 350px; left: 150px;" title="Movies">Movies</div>
+      <div style="top: 400px; left: 300px;" title="Gaming Zone">Gaming</div>
+      <div style="top: 450px; left: 50px;" title="Washroom Men">Men</div>
+      <div style="top: 450px; left: 120px;" title="Washroom Women">Women</div>
+      <div style="top: 20px; left: 250px;" title="Mall Office">Office</div>
+      <div style="top: 300px; left: 20px;" title="Escalators">Escalator</div>
+      <div style="top: 300px; left: 100px;" title="Stairs">Stairs</div>
+      <div style="top: 500px; left: 250px;" title="Parking">Parking</div>
+      <div style="top: 500px; left: 50px;" title="Checkout">Checkout</div>
+    </div>
 
-<h1>Store Navigation System 🏬</h1>
+    <div id="controls">
+      <div id="item-list">
+        <h2>Item List</h2>
+        <select id="itemSelect">
+          <option value="">Select Item</option>
+          <option value="Grocery">Grocery</option>
+          <option value="Clothing">Clothing</option>
+          <option value="Electronics">Electronics</option>
+          <option value="Movies">Movies</option>
+          <option value="Gaming Zone">Gaming Zone</option>
+        </select>
+        <button onclick="goToItem()">Go to Item</button>
+      </div>
 
-<input type="text" id="search" placeholder="Search item..." onkeyup="searchItem()">
+      <div id="facility-list">
+        <h2>Facilities</h2>
+        <button onclick="highlight('Washroom Men')">Men's Washroom</button>
+        <button onclick="highlight('Washroom Women')">Women's Washroom</button>
+        <button onclick="highlight('Mall Office')">Mall Office</button>
+        <button onclick="highlight('Escalators')">Escalators</button>
+        <button onclick="highlight('Stairs')">Stairs</button>
+        <button onclick="highlight('Parking')">Parking</button>
+        <button onclick="highlight('Checkout')">Checkout</button>
+      </div>
 
-<button onclick="sortItems('asc')">Sort Price ↑</button>
-<button onclick="sortItems('desc')">Sort Price ↓</button>
+      <div id="payment">
+        <h2>Payment Option</h2>
+        <button onclick="alert('Proceed to Payment')">Pay Now</button>
+      </div>
+    </div>
+  </main>
 
-<ul id="item-list"></ul>
+  <script>
+    function goToItem() {
+      const item = document.getElementById('itemSelect').value;
+      highlight(item);
+    }
 
-<h2>Store Layout Map</h2>
-<img id="map" src="assets/maps/floor1_shops.png">
-
-<script src="js/app.js"></script>
+    function highlight(name) {
+      const markers = document.querySelectorAll('#map div');
+      markers.forEach(marker => {
+        if (marker.title === name) {
+          marker.style.backgroundColor = 'red';
+          marker.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          marker.style.backgroundColor = 'rgba(0,123,255,0.8)';
+        }
+      });
+    }
+  </script>
 </body>
 </html>
