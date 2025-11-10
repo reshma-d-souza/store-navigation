@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>In-Store Navigation System</title>
+  <title>Animated In-Store Navigation</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -29,6 +29,7 @@
       margin-right: 20px;
       background-color: #eaeaea;
       position: relative;
+      overflow: hidden;
     }
     #map .store {
       position: absolute;
@@ -37,10 +38,19 @@
       color: white;
       border-radius: 5px;
       cursor: pointer;
-      transition: background-color 0.3s;
+      transition: transform 0.5s, background-color 0.3s;
     }
     #map .store:hover {
       background-color: #0056b3;
+      transform: scale(1.2);
+    }
+    #map .highlight {
+      animation: pulse 1s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); background-color: red; }
+      50% { transform: scale(1.3); background-color: orange; }
+      100% { transform: scale(1); background-color: red; }
     }
     #controls {
       flex: 1;
@@ -74,7 +84,7 @@
 </head>
 <body>
   <header>
-    <h1>In-Store Navigation System</h1>
+    <h1>Animated In-Store Navigation</h1>
   </header>
   <main>
     <div id="map">
@@ -183,11 +193,10 @@
 
     function highlight(name) {
       markers.forEach(marker => {
+        marker.classList.remove('highlight');
         if (marker.dataset.name === name) {
-          marker.style.backgroundColor = 'red';
+          marker.classList.add('highlight');
           marker.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        } else {
-          marker.style.backgroundColor = 'rgba(0,123,255,0.8)';
         }
       });
     }
