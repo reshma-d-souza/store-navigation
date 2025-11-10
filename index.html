@@ -3,64 +3,94 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SVG Mall Navigation</title>
+<title>In-Store Navigation</title>
 <style>
-  body { font-family: Arial, sans-serif; margin:0; background:#f7f7f7; }
-  header { background:#007BFF; color:white; padding:20px; text-align:center; }
-  main { display:flex; flex-wrap: wrap; padding:20px; }
-  #mapContainer { flex:2; min-width:400px; height:500px; border:2px solid #ccc; margin-right:20px; position:relative; background:#eaeaea; overflow:hidden; }
-  svg { width:100%; height:100%; }
-  .store { fill:#007BFF; cursor:pointer; }
-  .facility { fill:orange; cursor:pointer; }
-  .path { fill:none; stroke:#888; stroke-width:10; stroke-linecap:round; }
-  #person { position:absolute; width:20px; height:20px; background:red; border-radius:50%; top:0; left:0; transform:translate(-10px,-10px); transition: top 0.5s linear, left 0.5s linear; z-index:100; }
-  #controls { flex:1; min-width:250px; }
-  h2 { color:#333; margin-top:0; }
-  select, button { width:100%; padding:8px; margin:5px 0; font-size:16px; }
-  table { width:100%; border-collapse:collapse; margin-top:10px; }
-  th, td { border:1px solid #ccc; padding:5px; text-align:left; }
-  th { background:#007BFF; color:white; }
+body { font-family: Arial, sans-serif; margin:0; background:#f7f7f7; }
+header { background:#007BFF; color:white; padding:20px; text-align:center; }
+main { display:flex; flex-wrap: wrap; padding:20px; }
+#mapContainer { flex:2; min-width:400px; height:500px; border:2px solid #ccc; margin-right:20px; position:relative; overflow:hidden; background:#eaeaea; }
+svg { width:100%; height:100%; }
+.store, .facility { cursor:pointer; }
+.store rect { fill:#007BFF; }
+.facility rect { fill:orange; }
+.path { fill:none; stroke:#888; stroke-width:10; stroke-linecap:round; }
+#person { position:absolute; width:20px; height:20px; background:red; border-radius:50%; top:0; left:0; transform:translate(-10px,-10px); transition: top 1s linear, left 1s linear; z-index:100; }
+#controls { flex:1; min-width:250px; }
+h2 { color:#333; margin-top:0; }
+select, button { width:100%; padding:8px; margin:5px 0; font-size:16px; }
+table { width:100%; border-collapse:collapse; margin-top:10px; }
+th, td { border:1px solid #ccc; padding:5px; text-align:left; }
+th { background:#007BFF; color:white; }
 </style>
 </head>
 <body>
 <header>
-  <h1>SVG Mall Navigation</h1>
+  <h1>In-Store Navigation</h1>
 </header>
 <main>
-  <div id="mapContainer">
-    <svg id="mallMap">
-      <!-- Floor 1 paths -->
-      <path id="floor1Path" class="path" d="50,50 L50,200 L200,200 L200,50" />
-      <!-- Stores -->
-      <rect id="Grocery" class="store" x="40" y="40" width="40" height="40" data-store="Grocery" />
-      <rect id="Clothing" class="store" x="200" y="40" width="40" height="40" data-store="Clothing" />
-      <!-- Facilities -->
-      <rect id="Escalator" class="facility" x="120" y="200" width="40" height="40" data-store="Escalator" />
-    </svg>
-    <div id="person"></div>
-  </div>
+<div id="mapContainer">
+  <svg id="mallMap">
+    <!-- Corridors/paths -->
+    <path id="corridor" class="path" d="50,50 L50,200 L200,200 L200,50 L350,50 L350,200" />
 
-  <div id="controls">
-    <h2>Select Item</h2>
-    <select id="itemSelect">
-      <option value="">--Select Item--</option>
-    </select>
-    <button onclick="goToItem()">Go to Item</button>
+    <!-- Stores -->
+    <g class="store" data-store="Grocery">
+      <rect x="30" y="30" width="40" height="40"/>
+      <text x="50" y="55" font-size="12" fill="white" text-anchor="middle">Grocery</text>
+    </g>
+    <g class="store" data-store="Clothing">
+      <rect x="180" y="30" width="40" height="40"/>
+      <text x="200" y="55" font-size="12" fill="white" text-anchor="middle">Clothing</text>
+    </g>
+    <g class="store" data-store="Electronics">
+      <rect x="30" y="180" width="40" height="40"/>
+      <text x="50" y="205" font-size="12" fill="white" text-anchor="middle">Electronics</text>
+    </g>
+    <g class="store" data-store="Movies">
+      <rect x="180" y="180" width="40" height="40"/>
+      <text x="200" y="205" font-size="12" fill="white" text-anchor="middle">Movies</text>
+    </g>
 
-    <h2>Item List & Rates</h2>
-    <table id="itemsTable">
-      <thead><tr><th>Item</th><th>Rate</th></tr></thead>
-      <tbody><tr><td colspan="2">Select a store or item</td></tr></tbody>
-    </table>
-  </div>
+    <!-- Facilities -->
+    <g class="facility" data-store="Washroom Men">
+      <rect x="320" y="30" width="40" height="40"/>
+      <text x="340" y="55" font-size="12" fill="white" text-anchor="middle">Men</text>
+    </g>
+    <g class="facility" data-store="Washroom Women">
+      <rect x="320" y="180" width="40" height="40"/>
+      <text x="340" y="205" font-size="12" fill="white" text-anchor="middle">Women</text>
+    </g>
+    <g class="facility" data-store="Escalator">
+      <rect x="100" y="100" width="40" height="40"/>
+      <text x="120" y="125" font-size="12" fill="white" text-anchor="middle">Escalator</text>
+    </g>
+  </svg>
+  <div id="person"></div>
+</div>
+
+<div id="controls">
+<h2>Select Item</h2>
+<select id="itemSelect">
+  <option value="">--Select Item--</option>
+</select>
+<button onclick="goToItem()">Go to Item</button>
+
+<h2>Item List & Rates</h2>
+<table id="itemsTable">
+<thead><tr><th>Item</th><th>Rate</th></tr></thead>
+<tbody><tr><td colspan="2">Select a store or item</td></tr></tbody>
+</table>
+</div>
 </main>
 
 <script>
 // Store items
 const storeItems = {
-  "Grocery": [{name:"Rice",rate:"$50/kg"}, {name:"Milk",rate:"$1/litre"}],
-  "Clothing": [{name:"Shirt",rate:"$20"}, {name:"Jacket",rate:"$60"}],
-  "Escalator": []
+  "Grocery":[{name:"Rice",rate:"$50/kg"}, {name:"Milk",rate:"$1/litre"}],
+  "Clothing":[{name:"Shirt",rate:"$20"}, {name:"Jacket",rate:"$60"}],
+  "Electronics":[{name:"Laptop",rate:"$800"}, {name:"Smartphone",rate:"$500"}],
+  "Movies":[{name:"DVDs",rate:"$10"}, {name:"Blu-ray",rate:"$15"}],
+  "Washroom Men":[], "Washroom Women":[], "Escalator":[]
 };
 
 // Map item -> store
@@ -78,7 +108,7 @@ for(let item in itemToStore){
   itemSelect.appendChild(option);
 }
 
-// Show items in table
+// Show items
 const itemsTableBody = document.querySelector('#itemsTable tbody');
 function showItems(storeName){
   const items = storeItems[storeName] || [];
@@ -89,10 +119,10 @@ function showItems(storeName){
   }
 }
 
-// Animate person along path (simple linear movement)
+// Animate person to store (simple linear movement)
 const person = document.getElementById('person');
 function movePersonToStore(storeName){
-  const target = document.querySelector('[data-store="'+storeName+'"]');
+  const target = document.querySelector('[data-store="'+storeName+'"] rect');
   if(!target) return;
   const mapRect = document.getElementById('mallMap').getBoundingClientRect();
   const targetRect = target.getBoundingClientRect();
@@ -111,7 +141,7 @@ function goToItem(){
   movePersonToStore(store);
 }
 
-// Click store to move person
+// Click store/facility
 document.querySelectorAll('.store, .facility').forEach(el=>{
   el.addEventListener('click', ()=> movePersonToStore(el.dataset.store));
 });
