@@ -30,13 +30,17 @@
       background-color: #eaeaea;
       position: relative;
     }
-    #map div {
+    #map .store {
       position: absolute;
       padding: 5px 10px;
       background-color: rgba(0,123,255,0.8);
       color: white;
       border-radius: 5px;
       cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    #map .store:hover {
+      background-color: #0056b3;
     }
     #controls {
       flex: 1;
@@ -48,11 +52,15 @@
     h2 {
       color: #333;
     }
-    select, button {
+    ul {
+      padding-left: 20px;
+    }
+    button {
       width: 100%;
       padding: 8px;
       margin: 5px 0;
       font-size: 16px;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -62,33 +70,29 @@
   </header>
   <main>
     <div id="map">
-      <!-- Sample map markers -->
-      <div style="top: 50px; left: 100px;" title="Grocery">Grocery</div>
-      <div style="top: 150px; left: 50px;" title="Clothing">Clothing</div>
-      <div style="top: 250px; left: 200px;" title="Electronics">Electronics</div>
-      <div style="top: 350px; left: 150px;" title="Movies">Movies</div>
-      <div style="top: 400px; left: 300px;" title="Gaming Zone">Gaming</div>
-      <div style="top: 450px; left: 50px;" title="Washroom Men">Men</div>
-      <div style="top: 450px; left: 120px;" title="Washroom Women">Women</div>
-      <div style="top: 20px; left: 250px;" title="Mall Office">Office</div>
-      <div style="top: 300px; left: 20px;" title="Escalators">Escalator</div>
-      <div style="top: 300px; left: 100px;" title="Stairs">Stairs</div>
-      <div style="top: 500px; left: 250px;" title="Parking">Parking</div>
-      <div style="top: 500px; left: 50px;" title="Checkout">Checkout</div>
+      <!-- Stores -->
+      <div class="store" style="top: 50px; left: 100px;" data-name="Grocery">Grocery</div>
+      <div class="store" style="top: 150px; left: 50px;" data-name="Clothing">Clothing</div>
+      <div class="store" style="top: 250px; left: 200px;" data-name="Electronics">Electronics</div>
+      <div class="store" style="top: 350px; left: 150px;" data-name="Movies">Movies</div>
+      <div class="store" style="top: 400px; left: 300px;" data-name="Gaming Zone">Gaming</div>
+
+      <!-- Facilities -->
+      <div class="store" style="top: 450px; left: 50px;" data-name="Washroom Men">Men</div>
+      <div class="store" style="top: 450px; left: 120px;" data-name="Washroom Women">Women</div>
+      <div class="store" style="top: 20px; left: 250px;" data-name="Mall Office">Office</div>
+      <div class="store" style="top: 300px; left: 20px;" data-name="Escalators">Escalator</div>
+      <div class="store" style="top: 300px; left: 100px;" data-name="Stairs">Stairs</div>
+      <div class="store" style="top: 500px; left: 250px;" data-name="Parking">Parking</div>
+      <div class="store" style="top: 500px; left: 50px;" data-name="Checkout">Checkout</div>
     </div>
 
     <div id="controls">
       <div id="item-list">
-        <h2>Item List</h2>
-        <select id="itemSelect">
-          <option value="">Select Item</option>
-          <option value="Grocery">Grocery</option>
-          <option value="Clothing">Clothing</option>
-          <option value="Electronics">Electronics</option>
-          <option value="Movies">Movies</option>
-          <option value="Gaming Zone">Gaming Zone</option>
-        </select>
-        <button onclick="goToItem()">Go to Item</button>
+        <h2>Available Items</h2>
+        <ul id="itemsUl">
+          <li>Select a store to view items</li>
+        </ul>
       </div>
 
       <div id="facility-list">
@@ -110,21 +114,46 @@
   </main>
 
   <script>
-    function goToItem() {
-      const item = document.getElementById('itemSelect').value;
-      highlight(item);
-    }
+    // Store items
+    const storeItems = {
+      "Grocery": ["Rice", "Milk", "Eggs", "Vegetables", "Fruits"],
+      "Clothing": ["Shirts", "Trousers", "Dresses", "Shoes", "Jackets"],
+      "Electronics": ["Laptop", "Smartphone", "Headphones", "Camera"],
+      "Movies": ["DVDs", "Blu-ray", "Movie Posters"],
+      "Gaming Zone": ["Gaming Console", "Games", "Accessories"],
+      "Washroom Men": [],
+      "Washroom Women": [],
+      "Mall Office": [],
+      "Escalators": [],
+      "Stairs": [],
+      "Parking": [],
+      "Checkout": []
+    };
+
+    const markers = document.querySelectorAll('#map .store');
+    const itemsUl = document.getElementById('itemsUl');
+
+    markers.forEach(marker => {
+      marker.addEventListener('click', () => {
+        highlight(marker.dataset.name);
+        showItems(marker.dataset.name);
+      });
+    });
 
     function highlight(name) {
-      const markers = document.querySelectorAll('#map div');
       markers.forEach(marker => {
-        if (marker.title === name) {
+        if (marker.dataset.name === name) {
           marker.style.backgroundColor = 'red';
           marker.scrollIntoView({ behavior: 'smooth', block: 'center' });
         } else {
           marker.style.backgroundColor = 'rgba(0,123,255,0.8)';
         }
       });
+    }
+
+    function showItems(storeName) {
+      const items = storeItems[storeName];
+      itemsUl.innerHTML = items.length > 0 ? items.map(item => `<li>${item}</li>`).join('') : '<li>No items available</li>';
     }
   </script>
 </body>
